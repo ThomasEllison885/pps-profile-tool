@@ -74,7 +74,12 @@
     transition: all 0.2s;
   }
   .view-btn:hover { background: #141008; }
-  .empty-row td { color: #444; padding: 40px 14px; text-align: center; }
+  .export-btn {
+    display: inline-block; background: #27ae60; color: #fff;
+    text-decoration: none; border-radius: 6px; padding: 8px 18px;
+    font-size: 13px; font-weight: 600; transition: background 0.2s;
+  }
+  .export-btn:hover { background: #219a52; }
   /* DISC Distribution */
   .dist-section { margin-top: 40px; }
   .dist-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px; }
@@ -110,17 +115,20 @@
       <h1>Team <span>Dashboard</span></h1>
       <p class="subtitle">Pure Property Solutions · All assessment results</p>
     </div>
-    <form class="year-filter" method="GET" action="/admin">
-      <label>Year</label>
-      <select name="year" onchange="this.form.submit()">
-        {% for y in years %}
-        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
-        {% endfor %}
-        {% if not years %}
-        <option value="{{ selected_year }}" selected>{{ selected_year }}</option>
-        {% endif %}
-      </select>
-    </form>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <form class="year-filter" method="GET" action="/admin">
+        <label>Year</label>
+        <select name="year" onchange="this.form.submit()">
+          {% for y in years %}
+          <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+          {% if not years %}
+          <option value="{{ selected_year }}" selected>{{ selected_year }}</option>
+          {% endif %}
+        </select>
+      </form>
+      <a href="/admin/export-csv" class="export-btn">⬇ Export CSV</a>
+    </div>
   </div>
 
   <!-- STATS -->
