@@ -6,87 +6,210 @@
 <title>The Pure Way Profile · Assessment</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; padding-bottom: 100px; }
-  nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 40px; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; background: #0a0a0a; z-index: 100; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+    border-bottom: 1px solid #1a1a1a;
+    position: sticky;
+    top: 0;
+    background: #0a0a0a;
+    z-index: 100;
+  }
   .nav-brand { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #B8922A; }
   .progress-wrap { flex: 1; max-width: 400px; margin: 0 40px; }
   .progress-label { font-size: 11px; color: #555; margin-bottom: 6px; letter-spacing: 1px; }
-  .progress-bar { background: #1a1a1a; border-radius: 4px; height: 6px; }
-  .progress-fill { height: 6px; background: #B8922A; border-radius: 4px; transition: width 0.4s ease; }
+  .progress-bar { background: #1a1a1a; border-radius: 4px; height: 4px; }
+  .progress-fill { height: 4px; background: #B8922A; border-radius: 4px; transition: width 0.4s ease; }
   .progress-count { font-size: 12px; color: #555; margin-top: 5px; }
-
-  /* Page step indicators */
-  .step-dots { display: flex; gap: 8px; align-items: center; }
-  .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #333; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #555; transition: all 0.3s; }
-  .step-dot.active { border-color: #B8922A; color: #B8922A; }
-  .step-dot.complete { background: #B8922A; border-color: #B8922A; color: #fff; }
-
-  .main { max-width: 740px; margin: 0 auto; padding: 40px 24px 0; }
-
-  /* Name card — only on page 1 */
-  .name-section { background: #111; border: 1px solid #222; border-radius: 12px; padding: 28px 32px; margin-bottom: 32px; }
-  .name-section h2 { font-size: 18px; margin-bottom: 6px; }
-  .name-section p { color: #666; font-size: 14px; margin-bottom: 18px; line-height: 1.5; }
-  .name-section input { width: 100%; max-width: 340px; background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 13px 16px; color: #fff; font-size: 15px; outline: none; transition: border-color 0.2s; }
+  .main {
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 50px 24px 0;
+  }
+  .name-section {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 32px;
+  }
+  .name-section h2 { font-size: 20px; margin-bottom: 8px; }
+  .name-section p { color: #666; font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
+  .name-section input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    max-width: 340px;
+  }
   .name-section input:focus { border-color: #B8922A; }
-
-  .reminder { background: #0f0a00; border: 1px solid #2a1e00; border-radius: 8px; padding: 13px 18px; font-size: 13px; color: #876020; margin-bottom: 28px; line-height: 1.5; }
-
-  /* Section header */
-  .section-divider { display: flex; align-items: center; gap: 16px; margin: 8px 0 24px; }
-  .section-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #B8922A; white-space: nowrap; }
-  .section-line { flex: 1; height: 1px; background: #1e1e1e; }
-
-  /* Page title */
-  .page-header { margin-bottom: 28px; }
-  .page-header .page-title { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
-  .page-header .page-sub { font-size: 14px; color: #555; }
-
-  /* Question cards */
-  .question-card { background: #111; border: 1px solid #1e1e1e; border-radius: 12px; padding: 28px; margin-bottom: 18px; transition: border-color 0.2s; }
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0 32px;
+  }
+  .section-divider .section-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #B8922A;
+    white-space: nowrap;
+  }
+  .section-divider .line { flex: 1; height: 1px; background: #1e1e1e; }
+  .section-note {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 32px;
+    line-height: 1.6;
+    font-style: italic;
+  }
+  .question-card {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
   .question-card.answered { border-color: #2a2a1a; }
-  .q-number { font-size: 11px; letter-spacing: 2px; color: #444; text-transform: uppercase; margin-bottom: 12px; }
-  .q-text { font-size: 16px; line-height: 1.65; color: #e8e8e8; margin-bottom: 22px; }
-  .options { display: flex; flex-direction: column; gap: 9px; }
-  .option-label { display: flex; align-items: flex-start; gap: 13px; background: #0a0a0a; border: 1px solid #222; border-radius: 8px; padding: 13px 15px; cursor: pointer; transition: all 0.18s; }
+  .q-number {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #444;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .q-text {
+    font-size: 17px;
+    line-height: 1.65;
+    color: #e8e8e8;
+    margin-bottom: 24px;
+    font-weight: 400;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.18s;
+    position: relative;
+  }
   .option-label:hover { border-color: #444; background: #0f0f0f; }
-  .option-label.selected { border-color: #B8922A; background: #141008; }
   .option-label input[type="radio"] { display: none; }
-  .option-letter { min-width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid #333; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #555; flex-shrink: 0; margin-top: 1px; transition: all 0.18s; }
-  .option-label.selected .option-letter { background: #B8922A; border-color: #B8922A; color: #fff; }
-  .option-text { font-size: 14px; color: #aaa; line-height: 1.55; transition: color 0.18s; }
+  .option-label.selected {
+    border-color: #B8922A;
+    background: #141008;
+  }
+  .option-letter {
+    min-width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #555;
+    letter-spacing: 0;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.18s;
+  }
+  .option-label.selected .option-letter {
+    background: #B8922A;
+    border-color: #B8922A;
+    color: #fff;
+  }
+  .option-text {
+    font-size: 15px;
+    color: #aaa;
+    line-height: 1.55;
+    transition: color 0.18s;
+  }
   .option-label.selected .option-text { color: #ddd; }
-
-  /* Navigation buttons */
-  .page-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 36px; gap: 16px; }
-  .btn-back { background: transparent; color: #666; border: 1px solid #333; border-radius: 8px; padding: 13px 28px; font-size: 15px; cursor: pointer; transition: all 0.2s; }
-  .btn-back:hover { color: #fff; border-color: #666; }
-  .btn-next { background: #B8922A; color: #fff; border: none; border-radius: 8px; padding: 13px 36px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-  .btn-next:hover { background: #a07820; }
-  .btn-next:disabled { background: #333; color: #555; cursor: not-allowed; }
-  .page-progress-text { font-size: 13px; color: #555; }
-
-  .validation-msg { margin-top: 12px; color: #e05555; font-size: 14px; text-align: center; min-height: 20px; }
-
-  /* Loading */
-  .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 20px; }
+  .reminder {
+    background: #0f0a00;
+    border: 1px solid #2a1e00;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #876020;
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+  .submit-section {
+    margin-top: 48px;
+    text-align: center;
+  }
+  .submit-btn {
+    background: #B8922A;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 16px 48px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .submit-btn:hover { background: #a07820; }
+  .submit-btn:disabled { background: #333; color: #555; cursor: not-allowed; }
+  .validation-msg {
+    margin-top: 14px;
+    font-size: 14px;
+    color: #e05555;
+    min-height: 20px;
+  }
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
   .loading-overlay.active { display: flex; }
-  .spinner { width: 48px; height: 48px; border: 3px solid #222; border-top-color: #B8922A; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid #222;
+    border-top-color: #B8922A;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { color: #888; font-size: 16px; letter-spacing: 1px; }
-
-  /* Page visibility */
-  .test-page { display: none; }
-  .test-page.active { display: block; }
-
   @media (max-width: 600px) {
     nav { padding: 14px 16px; }
-    .progress-wrap { margin: 0 12px; }
-    .step-dots { display: none; }
-    .main { padding: 24px 14px 0; }
-    .question-card { padding: 20px 16px; }
+    .progress-wrap { margin: 0 16px; }
+    .main { padding: 28px 14px 0; }
+    .question-card { padding: 22px 18px; }
     .q-text { font-size: 15px; }
-    .option-text { font-size: 13px; }
+    .option-text { font-size: 14px; }
   }
 </style>
 </head>
@@ -94,83 +217,63 @@
 
 <nav>
   <div class="nav-brand">Pure Way Profile</div>
+  <a href="https://hub.purepropsolutions.com/dashboard" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;border:1px solid rgba(255,255,255,0.2);padding:5px 12px;border-radius:6px;margin-right:auto;margin-left:16px;">← Hub</a>
   <div class="progress-wrap">
-    <div class="progress-label">OVERALL PROGRESS</div>
+    <div class="progress-label">PROGRESS</div>
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <div class="progress-count" id="progressCount">0 of {{ total }} answered</div>
-  </div>
-  <div class="step-dots" id="stepDots">
-    {% for page in pages %}
-    <div class="step-dot {% if loop.index == 1 %}active{% endif %}" id="dot{{ loop.index0 }}">{{ loop.index }}</div>
-    {% endfor %}
+    <div class="progress-count" id="progressCount">0 of 44 answered</div>
   </div>
 </nav>
 
 <div class="main">
 
-  <!-- Page 1 includes name entry -->
-  {% for page in pages %}
-  <div class="test-page {% if loop.index == 1 %}active{% endif %}" id="page{{ loop.index0 }}">
+  <div class="name-section">
+    <h2>Before you begin</h2>
+    <p>Enter your name exactly as you'd like it stored. Your results will be saved under this name so you can compare them year over year. <br><strong style="color:#aaa">Answer how you actually respond — not how you think you should respond.</strong></p>
+    <input type="text" id="participantName" placeholder="Your full name" autocomplete="name">
+  </div>
 
-    {% if loop.index == 1 %}
-    <div class="name-section">
-      <h2>Before you begin</h2>
-      <p>Enter your name exactly as you'd like it stored for year-over-year tracking. <strong style="color:#aaa">Answer how you actually respond — not how you think you should.</strong></p>
-      <input type="text" id="participantName" placeholder="Your full name" autocomplete="name">
+  <div class="reminder">
+    <strong>One rule:</strong> Choose the response that reflects how you'd actually behave in that situation — not what you think is the "right" answer. There are no right answers. The accuracy of your results depends entirely on your honesty.
+  </div>
+
+  <!-- DISC Section -->
+  <div class="section-divider">
+    <div class="line"></div>
+    <div class="section-label">Part 1 · Behavioral Style</div>
+    <div class="line"></div>
+  </div>
+  <p class="section-note">These scenarios focus on how you naturally approach work, people, decisions, and pressure. Pick the response that sounds most like the real you.</p>
+
+  {% for q in questions %}
+    {% if q.section == 'Motivators' and loop.index == 29 %}
+    <div class="section-divider">
+      <div class="line"></div>
+      <div class="section-label">Part 2 · Motivators & Values</div>
+      <div class="line"></div>
     </div>
-    <div class="reminder"><strong>One rule:</strong> Choose the response that reflects how you'd actually behave — not what sounds like the "right" answer. There are no right answers. Your honesty is what makes this accurate.</div>
+    <p class="section-note">These questions explore what drives you — what makes work feel meaningful or draining, and what you value most in how you work.</p>
     {% endif %}
 
-    <div class="page-header">
-      {% set first_q = page[0] %}
-      <div class="section-divider">
-        <div class="section-line"></div>
-        <div class="section-label">{{ first_q.section }}</div>
-        <div class="section-line"></div>
-      </div>
-      <div class="page-sub">Page {{ loop.index }} of {{ pages|length }} · {{ page|length }} questions</div>
-    </div>
-
-    {% set page_offset = namespace(val=0) %}
-    {% for p_idx in range(loop.index0) %}
-      {% set page_offset.val = page_offset.val + pages[p_idx]|length %}
-    {% endfor %}
-
-    {% for q in page %}
     <div class="question-card" id="card_{{ q.id }}">
-      <div class="q-number">Question {{ page_offset.val + loop.index }}</div>
+      <div class="q-number">Question {{ loop.index }}</div>
       <div class="q-text">{{ q.text }}</div>
       <div class="options">
-        {% for letter, opt in q.options %}
-        <label class="option-label" id="opt_{{ q.id }}_{{ letter }}" onclick="selectOption('{{ q.id }}', '{{ letter }}', this)">
-          <input type="radio" name="{{ q.id }}" value="{{ letter }}">
-          <div class="option-letter">{{ letter }}</div>
-          <div class="option-text">{{ opt.text }}</div>
+        {% for val, text in q.options %}
+        <label class="option-label" id="opt_{{ q.id }}_{{ val }}" onclick="selectOption('{{ q.id }}', '{{ val }}', this)">
+          <input type="radio" name="{{ q.id }}" value="{{ val }}">
+          <div class="option-letter">{{ val }}</div>
+          <div class="option-text">{{ text }}</div>
         </label>
         {% endfor %}
       </div>
     </div>
-    {% endfor %}
-
-    <div class="page-nav">
-      {% if loop.index > 1 %}
-      <button class="btn-back" onclick="goToPage({{ loop.index0 - 1 }})">← Back</button>
-      {% else %}
-      <div></div>
-      {% endif %}
-
-      <span class="page-progress-text" id="pageProgress{{ loop.index0 }}">0 / {{ page|length }} answered</span>
-
-      {% if not loop.last %}
-      <button class="btn-next" id="nextBtn{{ loop.index0 }}" onclick="goToPage({{ loop.index0 + 1 }})">Next →</button>
-      {% else %}
-      <button class="btn-next" id="submitBtn" onclick="submitAssessment()">Submit My Assessment →</button>
-      {% endif %}
-    </div>
-    <div class="validation-msg" id="validationMsg{{ loop.index0 }}"></div>
-
-  </div>
   {% endfor %}
+
+  <div class="submit-section">
+    <button class="submit-btn" id="submitBtn" onclick="submitAssessment()">Submit My Assessment →</button>
+    <div class="validation-msg" id="validationMsg"></div>
+  </div>
 
 </div>
 
@@ -181,25 +284,17 @@
 
 <script>
   const answers = {};
-  const total = {{ total }};
-  const numPages = {{ pages|length }};
-  const pageSizes = [{% for page in pages %}{{ page|length }}{% if not loop.last %},{% endif %}{% endfor %}];
-  let currentPage = 0;
-
-  // Build page question id lists
-  const pageQuestions = [
-    {% for page in pages %}
-    [{% for q in page %}'{{ q.id }}'{% if not loop.last %},{% endif %}{% endfor %}]{% if not loop.last %},{% endif %}
-    {% endfor %}
-  ];
+  const total = 44;
 
   function selectOption(qId, val, labelEl) {
+    // Deselect all options in this question
     document.querySelectorAll(`[id^="opt_${qId}_"]`).forEach(el => el.classList.remove('selected'));
+    // Select clicked
     labelEl.classList.add('selected');
     answers[qId] = val;
+    // Mark card answered
     document.getElementById(`card_${qId}`).classList.add('answered');
     updateProgress();
-    updatePageProgress(currentPage);
   }
 
   function updateProgress() {
@@ -209,70 +304,27 @@
     document.getElementById('progressCount').textContent = `${count} of ${total} answered`;
   }
 
-  function updatePageProgress(pageIdx) {
-    const qs = pageQuestions[pageIdx];
-    const answered = qs.filter(id => answers[id]).length;
-    const el = document.getElementById(`pageProgress${pageIdx}`);
-    if (el) el.textContent = `${answered} / ${qs.length} answered`;
-  }
-
-  function goToPage(targetPage) {
-    const msg = document.getElementById(`validationMsg${currentPage}`);
-
-    // Validate current page is complete before advancing
-    if (targetPage > currentPage) {
-      const qs = pageQuestions[currentPage];
-      const unanswered = qs.filter(id => !answers[id]);
-      if (unanswered.length > 0) {
-        msg.textContent = `Please answer all questions on this page before continuing. ${unanswered.length} remaining.`;
-        // Scroll to first unanswered
-        const firstCard = document.getElementById(`card_${unanswered[0]}`);
-        if (firstCard) firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-      // Validate name on page 1
-      if (currentPage === 0) {
-        const name = document.getElementById('participantName').value.trim();
-        if (!name) {
-          msg.textContent = 'Please enter your name before continuing.';
-          document.getElementById('participantName').focus();
-          return;
-        }
-      }
-    }
-
-    msg.textContent = '';
-
-    // Hide current, show target
-    document.getElementById(`page${currentPage}`).classList.remove('active');
-    document.getElementById(`page${targetPage}`).classList.add('active');
-
-    // Update step dots
-    const prevDot = document.getElementById(`dot${currentPage}`);
-    const nextDot = document.getElementById(`dot${targetPage}`);
-    if (prevDot) { prevDot.classList.remove('active'); if (targetPage > currentPage) prevDot.classList.add('complete'); else prevDot.classList.remove('complete'); }
-    if (nextDot) { nextDot.classList.add('active'); nextDot.classList.remove('complete'); }
-
-    currentPage = targetPage;
-    updatePageProgress(currentPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
   async function submitAssessment() {
     const name = document.getElementById('participantName').value.trim();
     const count = Object.keys(answers).length;
-    const msg = document.getElementById(`validationMsg${currentPage}`);
+    const msg = document.getElementById('validationMsg');
 
-    // Final validation
-    const qs = pageQuestions[currentPage];
-    const unanswered = qs.filter(id => !answers[id]);
-    if (unanswered.length > 0) {
-      msg.textContent = `Please answer all questions on this page. ${unanswered.length} remaining.`;
-      document.getElementById(`card_${unanswered[0]}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (!name) {
+      msg.textContent = 'Please enter your name before submitting.';
+      document.getElementById('participantName').focus();
       return;
     }
     if (count < total) {
-      msg.textContent = `${total - count} questions still unanswered from earlier pages.`;
+      const missing = total - count;
+      msg.textContent = `Please answer all ${total} questions. You have ${missing} remaining.`;
+      // Scroll to first unanswered
+      for (let i = 1; i <= total; i++) {
+        const key = `q${i}`;
+        if (!answers[key]) {
+          document.getElementById(`card_${key}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+          break;
+        }
+      }
       return;
     }
 
@@ -297,9 +349,6 @@
       msg.textContent = 'Network error. Please try again.';
     }
   }
-
-  // Init page progress counters
-  for (let i = 0; i < numPages; i++) updatePageProgress(i);
 </script>
 </body>
 </html>
