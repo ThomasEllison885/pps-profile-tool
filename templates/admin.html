@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pure Way Profile · Admin</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 40px; border-bottom: 1px solid #1a1a1a;
+  }
+  .nav-brand { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #B8922A; }
+  .nav-links a { color: #666; text-decoration: none; font-size: 14px; margin-left: 20px; }
+  .nav-links a:hover { color: #fff; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 48px 24px 80px; }
+  .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 36px; flex-wrap: wrap; gap: 16px; }
+  h1 { font-size: 32px; }
+  h1 span { color: #B8922A; }
+  .subtitle { color: #666; font-size: 14px; margin-top: 6px; }
+  .year-filter { display: flex; align-items: center; gap: 8px; }
+  .year-filter label { font-size: 12px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+  .year-filter select {
+    background: #111; border: 1px solid #222; border-radius: 6px;
+    color: #fff; padding: 8px 14px; font-size: 14px; outline: none;
+  }
+  .year-filter select:focus { border-color: #B8922A; }
+  /* Summary stats */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+  .stat-card {
+    background: #111; border: 1px solid #1e1e1e; border-radius: 10px; padding: 20px;
+    text-align: center;
+  }
+  .stat-card .num { font-size: 32px; font-weight: 700; color: #B8922A; }
+  .stat-card .lbl { font-size: 12px; color: #555; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+  /* Table */
+  .section-label {
+    font-size: 11px; letter-spacing: 3px; color: #B8922A;
+    text-transform: uppercase; margin-bottom: 16px;
+    padding-bottom: 10px; border-bottom: 1px solid #1a1a1a;
+  }
+  .team-table { width: 100%; border-collapse: collapse; }
+  .team-table th {
+    text-align: left; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+    color: #555; padding: 10px 14px; border-bottom: 1px solid #1a1a1a;
+  }
+  .team-table td { padding: 14px 14px; border-bottom: 1px solid #141414; vertical-align: middle; }
+  .team-table tr:hover td { background: #0f0f0f; }
+  .team-table .name-cell { font-weight: 500; color: #ddd; font-size: 15px; }
+  .team-table .date-cell { color: #555; font-size: 13px; }
+  .disc-badge {
+    display: inline-block; background: #141008; border: 1px solid #2a2010;
+    color: #B8922A; border-radius: 6px; padding: 4px 10px; font-size: 13px; font-weight: 600;
+  }
+  .score-cell { font-size: 13px; color: #888; }
+  .bar-cell { min-width: 120px; }
+  .mini-bars { display: flex; gap: 4px; align-items: flex-end; }
+  .mini-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .mini-bar { width: 16px; background: #222; border-radius: 2px; }
+  .mini-bar.d { background: #c0392b; }
+  .mini-bar.i { background: #e67e22; }
+  .mini-bar.s { background: #27ae60; }
+  .mini-bar.c { background: #2980b9; }
+  .mini-lbl { font-size: 9px; color: #444; }
+  .motiv-badge {
+    display: inline-block; background: #111; border: 1px solid #222;
+    color: #aaa; border-radius: 6px; padding: 4px 10px; font-size: 12px;
+  }
+  .char-cell { font-size: 13px; color: #666; }
+  .view-btn {
+    color: #B8922A; text-decoration: none; font-size: 13px;
+    border: 1px solid #2a2010; border-radius: 6px; padding: 5px 12px;
+    transition: all 0.2s;
+  }
+  .view-btn:hover { background: #141008; }
+  .empty-row td { color: #444; padding: 40px 14px; text-align: center; }
+  /* DISC Distribution */
+  .dist-section { margin-top: 40px; }
+  .dist-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px; }
+  .dist-card {
+    background: #111; border: 1px solid #1e1e1e; border-radius: 10px;
+    padding: 20px; text-align: center;
+  }
+  .dist-letter { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+  .d-letter { color: #c0392b; } .i-letter { color: #e67e22; }
+  .s-letter { color: #27ae60; } .c-letter { color: #2980b9; }
+  .dist-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .dist-count { font-size: 24px; font-weight: 700; color: #ddd; }
+  .dist-pct { font-size: 12px; color: #555; }
+  @media (max-width: 900px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .dist-grid { grid-template-columns: repeat(2, 1fr); }
+    .team-table { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">Pure Way Profile · Admin</div>
+  <div class="nav-links">
+    <a href="/profile">Team View</a>
+    <a href="/logout">Log Out</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Team <span>Dashboard</span></h1>
+      <p class="subtitle">Pure Property Solutions · All assessment results</p>
+    </div>
+    <form class="year-filter" method="GET" action="/admin">
+      <label>Year</label>
+      <select name="year" onchange="this.form.submit()">
+        {% for y in years %}
+        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+        {% if not years %}
+        <option value="{{ selected_year }}" selected>{{ selected_year }}</option>
+        {% endif %}
+      </select>
+    </form>
+  </div>
+
+  <!-- STATS -->
+  {% set d_count = rows | selectattr('primary_disc', 'equalto', 'D') | list | length %}
+  {% set i_count = rows | selectattr('primary_disc', 'equalto', 'I') | list | length %}
+  {% set s_count = rows | selectattr('primary_disc', 'equalto', 'S') | list | length %}
+  {% set c_count = rows | selectattr('primary_disc', 'equalto', 'C') | list | length %}
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="num">{{ rows | length }}</div>
+      <div class="lbl">Assessments Taken</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ rows | map(attribute='name') | unique | list | length }}</div>
+      <div class="lbl">Team Members</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ selected_year }}</div>
+      <div class="lbl">Assessment Year</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">
+        {% if rows %}
+        {% set motiv_counts = {} %}
+        {% for row in rows %}
+          {% if row.primary_motiv not in motiv_counts %}{% set _ = motiv_counts.update({row.primary_motiv: 0}) %}{% endif %}
+          {% set _ = motiv_counts.update({row.primary_motiv: motiv_counts[row.primary_motiv] + 1}) %}
+        {% endfor %}
+        {% set top_motiv = motiv_counts | dictsort(by='value') | last %}
+        {{ top_motiv[0][:4] }}
+        {% else %}—{% endif %}
+      </div>
+      <div class="lbl">Top Motivator</div>
+    </div>
+  </div>
+
+  <!-- TEAM TABLE -->
+  <div class="section-label">All Results · {{ selected_year }}</div>
+  <table class="team-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Primary Type</th>
+        <th>DISC Scores</th>
+        <th>Motivator</th>
+        <th>Character</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if rows %}
+      {% for row in rows %}
+      <tr>
+        <td class="name-cell">{{ row.name }}</td>
+        <td class="date-cell">{{ row.taken_date }}</td>
+        <td>
+          <span class="disc-badge">
+            {{ row.primary_disc }}{% if row.secondary_disc %}/{{ row.secondary_disc }}{% endif %}
+          </span>
+        </td>
+        <td class="bar-cell">
+          <div class="mini-bars">
+            <div class="mini-bar-wrap">
+              <div class="mini-bar d" style="height:{{ [row.disc_d // 3, 4] | max }}px"></div>
+              <div class="mini-lbl">D</div>
+            </div>
+            <div class="mini-bar-wrap">
+              <div class="mini-bar i" style="height:{{ [row.disc_i // 3, 4] | max }}px"></div>
+              <div class="mini-lbl">I</div>
+            </div>
+            <div class="mini-bar-wrap">
+              <div class="mini-bar s" style="height:{{ [row.disc_s // 3, 4] | max }}px"></div>
+              <div class="mini-lbl">S</div>
+            </div>
+            <div class="mini-bar-wrap">
+              <div class="mini-bar c" style="height:{{ [row.disc_c // 3, 4] | max }}px"></div>
+              <div class="mini-lbl">C</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="motiv-badge">{{ row.primary_motiv }}</span></td>
+        <td class="char-cell">{{ row.character_match }}</td>
+        <td><a href="/history/{{ row.id }}" class="view-btn">View →</a></td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr class="empty-row"><td colspan="7">No assessments recorded for {{ selected_year }} yet.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <!-- DISC DISTRIBUTION -->
+  {% if rows %}
+  <div class="dist-section">
+    <div class="section-label">DISC Distribution · {{ selected_year }}</div>
+    <div class="dist-grid">
+      <div class="dist-card">
+        <div class="dist-letter d-letter">D</div>
+        <div class="dist-label">Decisive</div>
+        <div class="dist-count">{{ d_count }}</div>
+        <div class="dist-pct">{% if rows %}{{ ((d_count / rows|length) * 100) | round | int }}%{% endif %}</div>
+      </div>
+      <div class="dist-card">
+        <div class="dist-letter i-letter">I</div>
+        <div class="dist-label">Interactive</div>
+        <div class="dist-count">{{ i_count }}</div>
+        <div class="dist-pct">{% if rows %}{{ ((i_count / rows|length) * 100) | round | int }}%{% endif %}</div>
+      </div>
+      <div class="dist-card">
+        <div class="dist-letter s-letter">S</div>
+        <div class="dist-label">Stabilizing</div>
+        <div class="dist-count">{{ s_count }}</div>
+        <div class="dist-pct">{% if rows %}{{ ((s_count / rows|length) * 100) | round | int }}%{% endif %}</div>
+      </div>
+      <div class="dist-card">
+        <div class="dist-letter c-letter">C</div>
+        <div class="dist-label">Cautious</div>
+        <div class="dist-count">{{ c_count }}</div>
+        <div class="dist-pct">{% if rows %}{{ ((c_count / rows|length) * 100) | round | int }}%{% endif %}</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+</body>
+</html>
