@@ -584,7 +584,7 @@ def build_full_report(disc, motiv, primary_disc, secondary_disc, primary_motiv):
 
 # ── ROUTES ──────────────────────────────────────────────────────────────────────
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if session.get('authenticated'):
         return redirect(url_for('index'))
@@ -1268,3 +1268,8 @@ def get_questions():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+@app.route('/')
+def root():
+    from flask import redirect, url_for
+    return redirect(url_for('login'))
