@@ -575,7 +575,7 @@ def determine_profile(disc, motiv):
 def get_character_match(primary_disc, secondary_disc, primary_motiv):
     characters = {
         ('D', 'I'): ('Harvey Specter', 'Suits', 'Commanding and charismatic — you push hard for results but know how to work a room. You lead from the front and expect the same from everyone around you.'),
-        ('D', 'C'): ('Lisbeth Salander', 'The Girl with the Dragon Tattoo', "Intensely driven and methodical — you solve problems others can't and you do it your way. You don't need validation; results speak for themselves."),
+        ('D', 'C'): ('Frank Underwood', 'House of Cards', "Methodical, strategic, and relentlessly driven. You think several moves ahead and execute with precision. You don't need people to like you — you need them to respect you."),
         ('D', 'S'): ('Ned Stark', 'Game of Thrones', "You lead with conviction and protect what matters. Decisive under pressure, you never waver on your values even when it costs you."),
         ('D', None): ('Miranda Priestly', 'The Devil Wears Prada', "Razor-focused and results-driven. You set the standard, expect excellence, and don't waste time explaining yourself twice."),
         ('I', 'D'): ('Tony Stark', 'Iron Man / Avengers', "Brilliant, bold, and impossible to ignore. You thrive in the spotlight and push everyone around you to think bigger."),
@@ -588,7 +588,7 @@ def get_character_match(primary_disc, secondary_disc, primary_motiv):
         ('S', None): ('Meredith Grey', "Grey's Anatomy", "Calm in chaos, loyal under pressure. You process deeply before responding, and when you commit to someone or something, it's total."),
         ('C', 'D'): ('Walter White', 'Breaking Bad', "Meticulous and driven — a dangerous combination when pointed in the right direction. You don't guess; you know. And you don't stop until it's right."),
         ('C', 'I'): ('Hermione Granger', 'Harry Potter', "Precise, prepared, and surprisingly warm once you trust someone. You've done the research others skipped and you're not shy about it."),
-        ('C', 'S'): ('Atticus Finch', 'To Kill a Mockingbird', "Thoughtful, principled, and thorough. You weigh every angle before acting and your steadiness makes people feel safe in uncertain situations."),
+        ('C', 'S'): ('Raymond Holt', 'Brooklyn Nine-Nine', "Exacting standards, unshakeable composure, and quietly indispensable. You do everything right without needing credit. Your steadiness makes everyone around you better."),
         ('C', None): ('Spock', 'Star Trek', "Logic-first, always. You trust data over gut and precision over speed. Others may not always understand your methods, but they rarely argue with your results."),
     }
     key = (primary_disc, secondary_disc)
@@ -686,6 +686,9 @@ def login():
 def index():
     if not session.get('authenticated'):
         return redirect(url_for('login'))
+    # Capture user_key from hub if provided
+    if request.args.get('user'):
+        session['user_key'] = request.args.get('user')
     return render_template('index.html')
 
 
@@ -836,6 +839,57 @@ def admin():
         print(f"Admin DB error: {e}")
     return render_template('admin.html', rows=rows, years=years, selected_year=int(year_filter))
 
+
+
+@app.route('/admin/export-csv')
+def export_csv():
+    if not session.get('admin'):
+        return redirect(url_for('login'))
+    import csv
+    import io as _io
+    from flask import Response
+    rows = []
+    try:
+        conn = get_db()
+        if conn:
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            cur.execute('''SELECT id, name, taken_date, taken_year,
+                disc_d, disc_i, disc_s, disc_c,
+                motiv_achievement, motiv_affiliation, motiv_security,
+                motiv_autonomy, motiv_service, motiv_growth,
+                primary_disc, secondary_disc, primary_motiv,
+                character_match, character_show, created_at
+                FROM profile_results ORDER BY taken_date DESC''')
+            rows = cur.fetchall()
+            cur.close()
+            conn.close()
+    except Exception as e:
+        print(f"CSV export error: {e}")
+
+    output = _io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        'ID', 'Name', 'Date Taken', 'Year',
+        'D Score', 'I Score', 'S Score', 'C Score',
+        'Achievement', 'Affiliation', 'Security', 'Autonomy', 'Service', 'Growth',
+        'Primary DISC', 'Secondary DISC', 'Primary Motivator',
+        'Character Match', 'Character Show', 'Created At'
+    ])
+    for r in rows:
+        writer.writerow([
+            r['id'], r['name'], r['taken_date'], r['taken_year'],
+            r['disc_d'], r['disc_i'], r['disc_s'], r['disc_c'],
+            r['motiv_achievement'], r['motiv_affiliation'], r['motiv_security'],
+            r['motiv_autonomy'], r['motiv_service'], r['motiv_growth'],
+            r['primary_disc'], r['secondary_disc'], r['primary_motiv'],
+            r['character_match'], r['character_show'], r['created_at']
+        ])
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename=pps_profiles_{datetime.now().strftime("%Y%m%d")}.csv'}
+    )
 
 @app.route('/logout')
 def logout():
