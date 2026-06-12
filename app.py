@@ -684,7 +684,9 @@ def build_full_report(disc, motiv, primary_disc, secondary_disc, primary_motiv):
 
 @app.route('/')
 def root():
-    return redirect(url_for('login'))
+    if session.get('authenticated'):
+        return redirect(url_for('index'))
+    return redirect('https://hub.purepropsolutions.com')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -707,7 +709,6 @@ def login():
 
 @app.route('/profile')
 def index():
-    # SSO token auto-login
     token = request.args.get('token', '')
     if token and not session.get('authenticated'):
         user_info = validate_sso_token(token)
@@ -717,7 +718,7 @@ def index():
             session['display_name'] = user_info.get('display_name', '')
             return redirect(url_for('index'))
     if not session.get('authenticated'):
-        return redirect(url_for('login'))
+        return redirect('https://hub.purepropsolutions.com')
     if request.args.get('user'):
         session['user_key'] = request.args.get('user')
     return render_template('index.html')
