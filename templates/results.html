@@ -277,9 +277,12 @@
 <body>
 
 <nav>
-  <div class="nav-brand">Pure Way Profile</div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <img src="/static/logo.png" alt="PPS" onclick="window.location.href='https://hub.purepropsolutions.com/dashboard'" style="height:32px;opacity:0.85;cursor:pointer;" title="Back to Hub">
+    <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);"></div>
+    <div class="nav-brand">Pure Way Profile</div></div>
   <div class="nav-links">
-    <a href="https://hub.purepropsolutions.com/dashboard" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;border:1px solid rgba(255,255,255,0.2);padding:5px 12px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">← Hub</a>
+    <a href="https://hub.purepropsolutions.com/dashboard" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;border:1px solid rgba(255,255,255,0.2);padding:5px 12px;border-radius:6px;margin-right:8px;">← Hub</a>
     {% if from_history %}
     <a href="/history">← Back to History</a>
     {% else %}
@@ -431,5 +434,6 @@
   <div class="footer">Pure Property Solutions · The Pure Way: Trust. Quality. Results.™</div>
 </div>
 
+  <div style="text-align:center;padding:24px 0 16px;border-top:1px solid #1a1a1a;margin-top:32px;"><img src="/static/PPS_statement1_MED.jpg" alt="The Pure Way: Trust. Quality. Results.™" style="height:20px;opacity:0.3;filter:invert(1);"></div>
 </body>
 </html>

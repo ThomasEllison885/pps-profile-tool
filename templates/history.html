@@ -7,39 +7,76 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
-  nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 40px; border-bottom: 1px solid #1a1a1a; }
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 40px; border-bottom: 1px solid #1a1a1a;
+  }
   .nav-brand { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #B8922A; }
   .nav-links a { color: #666; text-decoration: none; font-size: 14px; margin-left: 20px; }
+  .nav-links a:hover { color: #fff; }
   .page { max-width: 780px; margin: 0 auto; padding: 48px 24px 80px; }
   h1 { font-size: 32px; margin-bottom: 8px; }
   h1 span { color: #B8922A; }
   .subtitle { color: #666; font-size: 15px; margin-bottom: 36px; }
   .search-form { display: flex; gap: 12px; margin-bottom: 40px; }
-  .search-form input { flex: 1; background: #111; border: 1px solid #222; border-radius: 8px; padding: 13px 16px; color: #fff; font-size: 15px; outline: none; max-width: 360px; }
+  .search-form input {
+    flex: 1; background: #111; border: 1px solid #222; border-radius: 8px;
+    padding: 13px 16px; color: #fff; font-size: 15px; outline: none;
+    transition: border-color 0.2s; max-width: 360px;
+  }
   .search-form input:focus { border-color: #B8922A; }
-  .search-form button { background: #B8922A; color: #fff; border: none; border-radius: 8px; padding: 13px 24px; font-size: 15px; font-weight: 600; cursor: pointer; }
-  .section-label { font-size: 11px; letter-spacing: 3px; color: #B8922A; text-transform: uppercase; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #1a1a1a; }
+  .search-form button {
+    background: #B8922A; color: #fff; border: none; border-radius: 8px;
+    padding: 13px 24px; font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  .search-form button:hover { background: #a07820; }
+  .section-label {
+    font-size: 11px; letter-spacing: 3px; color: #B8922A;
+    text-transform: uppercase; margin-bottom: 16px;
+    padding-bottom: 10px; border-bottom: 1px solid #1a1a1a;
+  }
+  /* Name list (no search) */
   .name-list { display: flex; flex-direction: column; gap: 10px; }
-  .name-item { background: #111; border: 1px solid #1e1e1e; border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: #ddd; transition: all 0.2s; }
-  .name-item:hover { border-color: #B8922A; }
+  .name-item {
+    background: #111; border: 1px solid #1e1e1e; border-radius: 8px;
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+    text-decoration: none; color: #ddd; transition: all 0.2s;
+  }
+  .name-item:hover { border-color: #B8922A; color: #fff; }
   .name-item .arrow { color: #B8922A; }
+  /* Result rows */
   .result-rows { display: flex; flex-direction: column; gap: 12px; }
-  .result-row { background: #111; border: 1px solid #1e1e1e; border-radius: 10px; padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; text-decoration: none; color: inherit; transition: border-color 0.2s; }
+  .result-row {
+    background: #111; border: 1px solid #1e1e1e; border-radius: 10px;
+    padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    text-decoration: none; color: inherit; transition: border-color 0.2s;
+  }
   .result-row:hover { border-color: #B8922A; }
   .result-info h3 { font-size: 17px; margin-bottom: 4px; }
   .result-info .meta { font-size: 13px; color: #666; }
   .result-badges { display: flex; gap: 8px; flex-wrap: wrap; }
-  .badge { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 5px 10px; font-size: 12px; color: #aaa; }
+  .badge {
+    background: #1a1a1a; border: 1px solid #2a2a2a;
+    border-radius: 6px; padding: 5px 10px; font-size: 12px; color: #aaa;
+  }
   .badge.disc { border-color: #2a2010; color: #B8922A; background: #141008; }
   .view-link { color: #B8922A; font-size: 14px; white-space: nowrap; }
   .empty { color: #555; font-size: 15px; padding: 32px 0; }
+  @media (max-width: 600px) {
+    nav { padding: 14px 16px; }
+    .page { padding: 28px 14px 60px; }
+    .result-row { flex-direction: column; align-items: flex-start; }
+  }
 </style>
 </head>
 <body>
 <nav>
-  <div class="nav-brand">Pure Way Profile</div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <img src="/static/logo.png" alt="PPS" onclick="window.location.href='https://hub.purepropsolutions.com/dashboard'" style="height:32px;opacity:0.85;cursor:pointer;" title="Back to Hub">
+    <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);"></div>
+    <div class="nav-brand">Pure Way Profile</div></div>
   <div class="nav-links">
-    <a href="https://hub.purepropsolutions.com/dashboard" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;border:1px solid rgba(255,255,255,0.2);padding:5px 12px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">← Hub</a>
+    <a href="https://hub.purepropsolutions.com/dashboard" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;border:1px solid rgba(255,255,255,0.2);padding:5px 12px;border-radius:6px;margin-right:8px;">← Hub</a>
     <a href="/profile">Home</a>
     <a href="/take-test">Take Test</a>
   </div>
@@ -47,10 +84,12 @@
 <div class="page">
   <h1>Result <span>History</span></h1>
   <p class="subtitle">Search by name to see past assessments and track changes over time.</p>
+
   <form class="search-form" method="GET" action="/history">
     <input type="text" name="name" placeholder="Search by name…" value="{{ searched_name or '' }}">
     <button type="submit">Search</button>
   </form>
+
   {% if searched_name %}
     <div class="section-label">Results for "{{ searched_name }}"</div>
     {% if rows %}
@@ -71,8 +110,9 @@
       {% endfor %}
     </div>
     {% else %}
-    <p class="empty">No results found for "{{ searched_name }}".</p>
+    <p class="empty">No results found for "{{ searched_name }}". Check the spelling or take the assessment first.</p>
     {% endif %}
+
   {% else %}
     <div class="section-label">All Team Members</div>
     {% if rows %}
@@ -89,5 +129,6 @@
     {% endif %}
   {% endif %}
 </div>
+  <div style="text-align:center;padding:24px 0 16px;border-top:1px solid #1a1a1a;margin-top:32px;"><img src="/static/PPS_statement1_MED.jpg" alt="The Pure Way: Trust. Quality. Results.™" style="height:20px;opacity:0.3;filter:invert(1);"></div>
 </body>
 </html>
