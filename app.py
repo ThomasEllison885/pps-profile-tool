@@ -9,6 +9,29 @@ from psycopg2.extras import RealDictCursor
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'pps-profile-secret-2026')
 
+HUB_URL = os.environ.get('HUB_URL', 'https://pps-hub-udxh.onrender.com')
+INTERNAL_API_KEY_VAL = os.environ.get('INTERNAL_API_KEY', 'pps-internal-2026')
+
+
+def validate_sso_token(token):
+    """Validate a hub SSO token."""
+    try:
+        import urllib.request as _ur
+        payload = json.dumps({'token': token}).encode('utf-8')
+        req = _ur.Request(
+            HUB_URL + '/validate-token',
+            data=payload,
+            headers={'Content-Type': 'application/json', 'X-API-Key': INTERNAL_API_KEY_VAL},
+            method='POST'
+        )
+        resp = _ur.urlopen(req, timeout=5)
+        data = json.loads(resp.read().decode('utf-8'))
+        if data.get('valid'):
+            return data
+    except Exception as e:
+        print(f"SSO validation error: {e}")
+    return None
+
 APP_PASSWORD = os.environ.get('APP_PASSWORD', 'PureProfile2026')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Luther1985')
 DATABASE_URL = os.environ.get('DATABASE_URL', '')
@@ -684,9 +707,17 @@ def login():
 
 @app.route('/profile')
 def index():
+    # SSO token auto-login
+    token = request.args.get('token', '')
+    if token and not session.get('authenticated'):
+        user_info = validate_sso_token(token)
+        if user_info:
+            session['authenticated'] = True
+            session['user_key'] = user_info.get('user_key', '')
+            session['display_name'] = user_info.get('display_name', '')
+            return redirect(url_for('index'))
     if not session.get('authenticated'):
         return redirect(url_for('login'))
-    # Capture user_key from hub if provided
     if request.args.get('user'):
         session['user_key'] = request.args.get('user')
     return render_template('index.html')
