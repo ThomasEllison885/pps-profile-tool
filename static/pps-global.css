@@ -621,15 +621,28 @@ body {
 
 /* ── RESPONSIVE ──────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  :root { --header-h: 56px; }
-  .pps-header { padding: 0 14px; }
+  :root { --header-h: 52px; }
+  .pps-header { padding: 0 12px; gap: 0; }
+  .pps-header-logo { height: 28px; }
+  .pps-header-divider { height: 18px; }
+  .pps-header-title { font-size: 12px; }
   .pps-header-user { display: none; }
-  .pps-main, .pps-main-narrow { padding: 18px 12px 60px; }
-  .pps-page-title { font-size: 24px; }
+  .pps-btn-header { padding: 5px 10px; font-size: 11px; }
+  .pps-main, .pps-main-narrow { padding: 16px 12px 60px; }
+  .pps-page-title { font-size: 22px; }
   .pps-form-row-2 { grid-template-columns: 1fr; }
   .pps-form-row-3 { grid-template-columns: 1fr 1fr; }
-  .pps-modal { padding: 20px 16px; }
-  .pps-btn-header span { display: none; }
+  .pps-modal { padding: 18px 14px; width: 95%; }
+  .pps-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .pps-table td, .pps-table th { padding: 8px 10px; font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+  :root { --header-h: 48px; }
+  .pps-header-logo { height: 24px; }
+  .pps-header-title { display: none; }
+  .pps-stats-row { grid-template-columns: 1fr 1fr; }
+  .pps-form-row-3 { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
