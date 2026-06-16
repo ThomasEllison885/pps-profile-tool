@@ -1,40 +1,59 @@
 import os
 import json
 import random
+import urllib.parse
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from hub_auth import configure_session, exchange_sso_code, hub_login_url, HUB_PUBLIC_URL
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'pps-profile-secret-2026')
+_secret = os.environ.get('SECRET_KEY', '').strip()
+if not _secret:
+    raise RuntimeError('SECRET_KEY env var is not set')
+app.secret_key = _secret
+configure_session(app)
 
-HUB_URL = os.environ.get('HUB_URL', 'https://pps-hub-udxh.onrender.com')
-INTERNAL_API_KEY_VAL = os.environ.get('INTERNAL_API_KEY', 'pps-internal-2026')
+HUB_URL = os.environ.get('HUB_URL', HUB_PUBLIC_URL).rstrip('/')
+INTERNAL_API_KEY_VAL = os.environ.get('INTERNAL_API_KEY', '').strip()
+if not INTERNAL_API_KEY_VAL:
+    raise RuntimeError('INTERNAL_API_KEY env var is not set')
+
+DATABASE_URL = os.environ.get('DATABASE_URL', '')
 
 
-def validate_sso_token(token):
-    """Validate a hub SSO token."""
-    try:
-        import urllib.request as _ur
-        payload = json.dumps({'token': token}).encode('utf-8')
-        req = _ur.Request(
-            HUB_URL + '/validate-token',
-            data=payload,
-            headers={'Content-Type': 'application/json', 'X-API-Key': INTERNAL_API_KEY_VAL},
-            method='POST'
-        )
-        resp = _ur.urlopen(req, timeout=5)
-        data = json.loads(resp.read().decode('utf-8'))
-        if data.get('valid'):
-            return data
-    except Exception as e:
-        print(f"SSO validation error: {e}")
+def _redirect_strip_code():
+    parsed = urllib.parse.urlparse(request.url)
+    qs = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+    qs.pop('code', None)
+    qs.pop('token', None)
+    flat = [(k, v) for k, vals in qs.items() for v in vals]
+    new_query = urllib.parse.urlencode(flat)
+    target = request.path + (f'?{new_query}' if new_query else '')
+    return redirect(target)
+
+
+def _ensure_auth():
+    code = (request.args.get('code') or request.args.get('token') or '').strip()
+    if code and not session.get('authenticated'):
+        user_info = exchange_sso_code(code)
+        if user_info:
+            session.permanent = True
+            session['authenticated'] = True
+            session['user_key'] = user_info.get('user_key', '')
+            session['display_name'] = user_info.get('display_name', '')
+            session['role'] = user_info.get('role', '')
+            if user_info.get('role') == 'admin':
+                session['admin'] = True
+            return _redirect_strip_code()
+    if not session.get('authenticated'):
+        return redirect(hub_login_url(request.url))
     return None
 
-APP_PASSWORD = os.environ.get('APP_PASSWORD', 'PureProfile2026')
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Luther1985')
-DATABASE_URL = os.environ.get('DATABASE_URL', '')
+
+def _is_admin():
+    return session.get('admin') or session.get('role') == 'admin'
 
 def get_db():
     if not DATABASE_URL:
@@ -686,48 +705,27 @@ def build_full_report(disc, motiv, primary_disc, secondary_disc, primary_motiv):
 def root():
     if session.get('authenticated'):
         return redirect(url_for('index'))
-    return redirect('https://hub.purepropsolutions.com')
+    return redirect(hub_login_url(url_for('index', _external=True)))
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if session.get('authenticated'):
-        return redirect(url_for('index'))
-    error = None
-    if request.method == 'POST':
-        pwd = request.form.get('password', '')
-        if pwd == APP_PASSWORD:
-            session['authenticated'] = True
-            return redirect(url_for('index'))
-        elif pwd == ADMIN_PASSWORD:
-            session['authenticated'] = True
-            session['admin'] = True
-            return redirect(url_for('admin'))
-        else:
-            error = 'Incorrect password. Please try again.'
-    return render_template('login.html', error=error)
+    return redirect(hub_login_url(url_for('index', _external=True)))
 
 
 @app.route('/profile')
 def index():
-    token = request.args.get('token', '')
-    if token and not session.get('authenticated'):
-        user_info = validate_sso_token(token)
-        if user_info:
-            session['authenticated'] = True
-            session['user_key'] = user_info.get('user_key', '')
-            session['display_name'] = user_info.get('display_name', '')
-            return redirect(url_for('index'))
-    if not session.get('authenticated'):
-        return redirect('https://hub.purepropsolutions.com')
-    if request.args.get('user'):
-        session['user_key'] = request.args.get('user')
+    auth_resp = _ensure_auth()
+    if auth_resp:
+        return auth_resp
     return render_template('index.html')
 
 
 @app.route('/take-test')
 def take_test():
-    if not session.get('authenticated'):
-        return redirect(url_for('login'))
+    auth_resp = _ensure_auth()
+    if auth_resp:
+        return auth_resp
     seed = session.get('test_seed') or random.randint(1, 999999)
     session['test_seed'] = seed
     questions = get_questions_shuffled(seed)
@@ -739,7 +737,7 @@ def take_test():
 @app.route('/submit', methods=['POST'])
 def submit():
     if not session.get('authenticated'):
-        return redirect(url_for('login'))
+        return jsonify({'error': 'Not authenticated'}), 401
     data = request.get_json()
     name = data.get('name', '').strip()
     answers = data.get('answers', {})
@@ -795,8 +793,9 @@ def submit():
 
 @app.route('/results')
 def results():
-    if not session.get('authenticated'):
-        return redirect(url_for('login'))
+    auth_resp = _ensure_auth()
+    if auth_resp:
+        return auth_resp
     result = session.get('last_result')
     if not result:
         return redirect(url_for('index'))
@@ -805,9 +804,12 @@ def results():
 
 @app.route('/history')
 def history():
-    if not session.get('authenticated'):
-        return redirect(url_for('login'))
+    auth_resp = _ensure_auth()
+    if auth_resp:
+        return auth_resp
     name = request.args.get('name', '').strip()
+    if not _is_admin():
+        name = session.get('display_name', '').strip()
     rows = []
     try:
         conn = get_db()
@@ -827,8 +829,9 @@ def history():
 
 @app.route('/history/<int:result_id>')
 def view_result(result_id):
-    if not session.get('authenticated'):
-        return redirect(url_for('login'))
+    auth_resp = _ensure_auth()
+    if auth_resp:
+        return auth_resp
     row = None
     try:
         conn = get_db()
@@ -842,6 +845,8 @@ def view_result(result_id):
         print(f"DB view error: {e}")
     if not row:
         return redirect(url_for('history'))
+    if not _is_admin() and row['name'].lower() != session.get('display_name', '').lower():
+        return redirect(url_for('history'))
     result = row['full_results']
     if isinstance(result, str):
         result = json.loads(result)
@@ -851,8 +856,11 @@ def view_result(result_id):
 
 @app.route('/admin')
 def admin():
-    if not session.get('admin'):
-        return redirect(url_for('login'))
+    auth_resp = _ensure_auth()
+    if auth_resp:
+        return auth_resp
+    if not _is_admin():
+        return redirect(url_for('index'))
     year_filter = request.args.get('year', str(datetime.now().year))
     rows, years = [], []
     try:
@@ -875,8 +883,11 @@ def admin():
 
 @app.route('/admin/export-csv')
 def export_csv():
-    if not session.get('admin'):
-        return redirect(url_for('login'))
+    auth_resp = _ensure_auth()
+    if auth_resp:
+        return auth_resp
+    if not _is_admin():
+        return redirect(url_for('index'))
     import csv
     import io as _io
     from flask import Response
@@ -926,7 +937,10 @@ def export_csv():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    nxt = request.args.get('next', '').strip()
+    if nxt.startswith('http://') or nxt.startswith('https://'):
+        return redirect(nxt)
+    return redirect(hub_login_url())
 
 
 if __name__ == '__main__':
