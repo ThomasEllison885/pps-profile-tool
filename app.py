@@ -2,6 +2,8 @@ import os
 import json
 import random
 import urllib.parse
+import urllib.request
+import urllib.error
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import psycopg2
@@ -29,14 +31,57 @@ if not INTERNAL_API_KEY_VAL:
 DATABASE_URL = os.environ.get('DATABASE_URL', '')
 
 
+def _profile_health_checks():
+    checks = []
+
+    def add(name, ok, detail='', error=''):
+        checks.append({'name': name, 'ok': bool(ok), 'detail': detail, 'error': error})
+
+    add('secret_key', bool(_secret))
+    add('internal_api_key', bool(INTERNAL_API_KEY_VAL))
+    add('database_url', bool(DATABASE_URL))
+    add('hub_url', bool(HUB_URL), detail=HUB_URL)
+
+    if INTERNAL_API_KEY_VAL and HUB_URL:
+        try:
+            req = urllib.request.Request(
+                HUB_URL + '/api/internal/ping',
+                headers={'X-API-Key': INTERNAL_API_KEY_VAL},
+                method='GET',
+            )
+            resp = urllib.request.urlopen(req, timeout=8)
+            data = json.loads(resp.read().decode('utf-8'))
+            add('hub_api_key_match', data.get('ok'), detail=data.get('service', ''))
+        except urllib.error.HTTPError as e:
+            add('hub_api_key_match', False, error=f'HTTP {e.code} — check INTERNAL_API_KEY matches hub')
+        except Exception as e:
+            add('hub_api_key_match', False, error=str(e))
+    else:
+        add('hub_api_key_match', False, error='INTERNAL_API_KEY or HUB_URL not set')
+
+    return checks
+
+
 @app.route('/health')
 def health():
     """Lightweight health check for Render; also surfaces missing auth config."""
     return jsonify({
         'ok': True,
+        'service': 'profile',
         'hub_url': HUB_URL,
         'sso_configured': bool(INTERNAL_API_KEY_VAL),
         'database_configured': bool(DATABASE_URL),
+    })
+
+
+@app.route('/health/deep')
+def health_deep():
+    checks = _profile_health_checks()
+    return jsonify({
+        'ok': all(c['ok'] for c in checks),
+        'service': 'profile',
+        'hub_url': HUB_URL,
+        'checks': checks,
     })
 
 
