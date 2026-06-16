@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: pps-profile-tool
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --timeout 120
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: INTERNAL_API_KEY
+        sync: false
+      - key: HUB_URL
+        value: https://hub.purepropsolutions.com
+      - key: HUB_PUBLIC_URL
+        value: https://hub.purepropsolutions.com
+      - key: DATABASE_URL
+        sync: false

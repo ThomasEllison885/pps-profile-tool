@@ -11,16 +11,33 @@ from hub_auth import configure_session, exchange_sso_code, hub_login_url, HUB_PU
 app = Flask(__name__)
 _secret = os.environ.get('SECRET_KEY', '').strip()
 if not _secret:
-    raise RuntimeError('SECRET_KEY env var is not set')
+    raise RuntimeError(
+        'SECRET_KEY env var is not set. In Render: Environment → add SECRET_KEY '
+        '(or use generateValue in render.yaml).'
+    )
 app.secret_key = _secret
 configure_session(app)
 
 HUB_URL = os.environ.get('HUB_URL', HUB_PUBLIC_URL).rstrip('/')
 INTERNAL_API_KEY_VAL = os.environ.get('INTERNAL_API_KEY', '').strip()
 if not INTERNAL_API_KEY_VAL:
-    raise RuntimeError('INTERNAL_API_KEY env var is not set')
+    print(
+        'WARNING: INTERNAL_API_KEY is not set — profile tool will deploy but '
+        'hub sign-in will fail until you add the same key used on pps-hub.'
+    )
 
 DATABASE_URL = os.environ.get('DATABASE_URL', '')
+
+
+@app.route('/health')
+def health():
+    """Lightweight health check for Render; also surfaces missing auth config."""
+    return jsonify({
+        'ok': True,
+        'hub_url': HUB_URL,
+        'sso_configured': bool(INTERNAL_API_KEY_VAL),
+        'database_configured': bool(DATABASE_URL),
+    })
 
 
 def _redirect_strip_code():
