@@ -53,7 +53,15 @@ def _profile_health_checks():
             data = json.loads(resp.read().decode('utf-8'))
             add('hub_api_key_match', data.get('ok'), detail=data.get('service', ''))
         except urllib.error.HTTPError as e:
-            add('hub_api_key_match', False, error=f'HTTP {e.code} — check INTERNAL_API_KEY matches hub')
+            if e.code == 404:
+                add(
+                    'hub_api_key_match', False,
+                    error=f'Hub at {HUB_URL} has no /api/internal/ping — redeploy pps-hub first',
+                )
+            elif e.code == 401:
+                add('hub_api_key_match', False, error='INTERNAL_API_KEY does not match hub')
+            else:
+                add('hub_api_key_match', False, error=f'HTTP {e.code} from hub')
         except Exception as e:
             add('hub_api_key_match', False, error=str(e))
     else:
