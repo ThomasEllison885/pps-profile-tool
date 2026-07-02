@@ -161,6 +161,7 @@ def init_db():
             created_at TIMESTAMP DEFAULT NOW()
         )
     ''')
+    cur.execute('ALTER TABLE profile_results ADD COLUMN IF NOT EXISTS user_key VARCHAR(100)')
     conn.commit()
     cur.close()
     conn.close()
@@ -832,19 +833,21 @@ def submit():
         'report': report,
     }
 
+    user_key = session.get('user_key', '').strip()
+
     try:
         conn = get_db()
         if conn:
             cur = conn.cursor()
             cur.execute('''
                 INSERT INTO profile_results
-                (name, taken_date, taken_year, disc_d, disc_i, disc_s, disc_c,
+                (name, user_key, taken_date, taken_year, disc_d, disc_i, disc_s, disc_c,
                  motiv_achievement, motiv_affiliation, motiv_security, motiv_autonomy,
                  motiv_service, motiv_growth, primary_disc, secondary_disc, primary_motiv,
                  character_match, character_show, full_results)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 RETURNING id
-            ''', (name, today, year, disc['D'], disc['I'], disc['S'], disc['C'],
+            ''', (name, user_key or None, today, year, disc['D'], disc['I'], disc['S'], disc['C'],
                   motiv['Achievement'], motiv['Affiliation'], motiv['Security'],
                   motiv['Autonomy'], motiv['Service'], motiv['Growth'],
                   primary_disc, secondary_disc, primary_motiv,
@@ -878,17 +881,28 @@ def history():
     if auth_resp:
         return auth_resp
     name = request.args.get('name', '').strip()
-    if not _is_admin():
-        name = session.get('display_name', '').strip()
+    user_key = session.get('user_key', '').strip()
+    display_name = session.get('display_name', '').strip()
     rows = []
     try:
         conn = get_db()
         if conn:
             cur = conn.cursor(cursor_factory=RealDictCursor)
-            if name:
-                cur.execute('SELECT * FROM profile_results WHERE LOWER(name) = LOWER(%s) ORDER BY taken_date DESC', (name,))
+            if _is_admin():
+                if name:
+                    cur.execute(
+                        'SELECT * FROM profile_results WHERE LOWER(name) = LOWER(%s) ORDER BY taken_date DESC',
+                        (name,),
+                    )
+                else:
+                    cur.execute('SELECT DISTINCT LOWER(name) as name FROM profile_results ORDER BY name')
             else:
-                cur.execute('SELECT DISTINCT LOWER(name) as name FROM profile_results ORDER BY name')
+                cur.execute('''
+                    SELECT * FROM profile_results
+                    WHERE user_key = %s
+                       OR (user_key IS NULL AND LOWER(name) = LOWER(%s))
+                    ORDER BY taken_date DESC
+                ''', (user_key, display_name))
             rows = cur.fetchall()
             cur.close()
             conn.close()
@@ -915,8 +929,16 @@ def view_result(result_id):
         print(f"DB view error: {e}")
     if not row:
         return redirect(url_for('history'))
-    if not _is_admin() and row['name'].lower() != session.get('display_name', '').lower():
-        return redirect(url_for('history'))
+    if not _is_admin():
+        user_key = session.get('user_key', '').strip()
+        display_name = session.get('display_name', '').strip()
+        owns = False
+        if row.get('user_key') and user_key:
+            owns = row['user_key'] == user_key
+        elif row.get('name') and display_name:
+            owns = row['name'].lower() == display_name.lower()
+        if not owns:
+            return redirect(url_for('history'))
     result = row['full_results']
     if isinstance(result, str):
         result = json.loads(result)
