@@ -13,10 +13,11 @@ from hub_auth import configure_session, exchange_sso_code, hub_login_url, HUB_PU
 app = Flask(__name__)
 _secret = os.environ.get('SECRET_KEY', '').strip()
 if not _secret:
-    raise RuntimeError(
-        'SECRET_KEY env var is not set. In Render: Environment → add SECRET_KEY '
-        '(or use generateValue in render.yaml).'
+    print(
+        'WARNING: SECRET_KEY is not set — profile tool will boot but sessions are '
+        'insecure until you add SECRET_KEY in Render Environment.'
     )
+    _secret = 'pps-profile-unset-secret-key'
 app.secret_key = _secret
 configure_session(app)
 

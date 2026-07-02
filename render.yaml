@@ -2,6 +2,7 @@ services:
   - type: web
     name: pps-profile-tool
     env: python
+    autoDeploy: false
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app --workers 1 --timeout 120
     envVars:
